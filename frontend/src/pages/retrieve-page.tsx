@@ -8,7 +8,6 @@ import { PasswordField } from 'amplify-material-ui';
 import { API } from 'aws-amplify';
 
 import { Section, SectionHeader, SectionBody } from '../components';
-import { decrypt } from '../utils/crypto';
 
 const useStyles = makeStyles(theme => ({
   form: {
@@ -32,14 +31,14 @@ export const RetrievePage: React.FC = () => {
       }}
       key="retrieve-form"
       onSubmit={async ({ passphrase }) => {
-        const { item } = await API.post(
+        const { secret } = await API.post(
           'ApiGatewayRestApi',
           `/retrieve/${linkId}`,
           {
             passphrase
           }
         );
-        setSecret(decrypt(item.ciphertext, passphrase));
+        setSecret(secret);
       }}
     >
       {({ handleSubmit, isValid }) => (

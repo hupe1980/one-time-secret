@@ -1,10 +1,21 @@
 import * as uuid from 'uuid';
+import * as CryptoJS from 'crypto-js';
 
 import { SecretItem } from '../models/secret-item';
 import { ShareSecretRequest } from '../request/share-secret-request';
 import { SecretAccess } from '../data-layer/secret-access';
 
 const secretAccess = new SecretAccess();
+
+export function encrypt(secret: string, passphrase: string): string {
+    const ciphertext = CryptoJS.AES.encrypt(secret, passphrase);
+    return ciphertext.toString();
+}
+
+export function decrypt(ciphertext: string, passphrase: string): string {
+    const bytes = CryptoJS.AES.decrypt(ciphertext, passphrase);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 
 export const shareSecret = async (
     shareSecretRequest: ShareSecretRequest,
@@ -45,6 +56,19 @@ export const deleteSecret = async (
     return secretAccess.deleteSecret(secretId, userId);
 };
 
-export const retrieveSecret = async (linkId: string): Promise<SecretItem> => {
-    return secretAccess.getSecretByLinkId(linkId);
+export const retrieveSecret = async (
+    linkId: string,
+    passphrase: string,
+): Promise<string> => {
+    const {
+        secretId,
+        userId,
+        ciphertext,
+    } = await secretAccess.getSecretByLinkId(linkId);
+
+    const secret = decrypt(ciphertext, passphrase);
+
+    await deleteSecret(secretId, userId);
+
+    return secret;
 };
