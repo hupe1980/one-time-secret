@@ -18,7 +18,6 @@ Resources:
   StaticWebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "one-time-secret-${Stage}"
       WebsiteConfiguration:
         ErrorDocument: index.html
         IndexDocument: index.html
