@@ -40,11 +40,13 @@ plugins:
     - serverless-dynamodb-local
     - serverless-offline
 
-package:
-    individually: true
+# package:
+#     individually: true
 
 custom:
     prefix: ${self:service}-${self:provider.stage}
+    webpack:
+        includeModules: true # enable auto-packing of external modules
     amplify:
         - filename: ../frontend/src/aws-exports.tsx
           type: typescript
