@@ -35,7 +35,9 @@ export const RetrievePage: React.FC = () => {
           'ApiGatewayRestApi',
           `/retrieve/${linkId}`,
           {
-            passphrase
+            body: {
+              passphrase
+            }
           }
         );
         setSecret(secret);
