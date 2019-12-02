@@ -39,6 +39,7 @@ export const SharePage: React.FC = () => {
           passphrase: '',
           ttl: 4320
         }}
+        key="share-form"
         onSubmit={async ({ secret, passphrase, ttl }) => {
           const ciphertext = encrypt(secret, passphrase);
 

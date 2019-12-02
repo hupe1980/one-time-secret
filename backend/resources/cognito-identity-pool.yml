@@ -111,7 +111,7 @@ Resources:
                                       - Ref: AWS::AccountId
                                       - ":"
                                       - Ref: ApiGatewayRestApi
-                                      - "/dev/POST/secret/*"
+                                      - "/${self:provider.stage}/POST/retrieve/*"
 
 # Print out the Id of the Identity Pool that is created
 Outputs:

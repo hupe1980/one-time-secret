@@ -30,6 +30,7 @@ export const RetrievePage: React.FC = () => {
       initialValues={{
         passphrase: ''
       }}
+      key="retrieve-form"
       onSubmit={async ({ passphrase }) => {
         const { item } = await API.post(
           'ApiGatewayRestApi',

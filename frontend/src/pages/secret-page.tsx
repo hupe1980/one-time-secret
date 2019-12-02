@@ -10,17 +10,25 @@ import { API } from 'aws-amplify';
 import { Section, SectionHeader, SectionBody } from '../components';
 
 interface Secret {
-  linkId?: string;
+  linkId: string;
+  creationTime: number;
+  expirationTime: number;
 }
 
 const useStyles = makeStyles(theme => ({
   button: {
+    margin: theme.spacing(3, 0, 2)
+  },
+  textfield: {
     margin: theme.spacing(3, 0, 2)
   }
 }));
 
 const createSecretLink = (linkId?: string) =>
   linkId ? `${window.location.origin}/retrieve/${linkId}` : '';
+
+const convertEpochToLocalString = (epoch: number) =>
+  new Date(epoch * 1000).toLocaleString();
 
 export const SecretPage: React.FC = () => {
   const classes = useStyles();
@@ -47,7 +55,7 @@ export const SecretPage: React.FC = () => {
 
   if (!secret) return <div>Loading!</div>;
 
-  const { linkId } = secret;
+  const { creationTime, expirationTime, linkId } = secret;
 
   return (
     <Section>
@@ -56,8 +64,25 @@ export const SecretPage: React.FC = () => {
         <TextField
           disabled
           fullWidth
-          variant="outlined"
+          variant="filled"
+          className={classes.textfield}
           defaultValue={createSecretLink(linkId)}
+        />
+        <TextField
+          disabled
+          fullWidth
+          label="Erstellzeitpunkt"
+          variant="outlined"
+          className={classes.textfield}
+          defaultValue={convertEpochToLocalString(creationTime)}
+        />
+        <TextField
+          disabled
+          fullWidth
+          label="Ablaufzeitpunkt"
+          variant="outlined"
+          className={classes.textfield}
+          defaultValue={convertEpochToLocalString(expirationTime)}
         />
         <Button
           fullWidth
