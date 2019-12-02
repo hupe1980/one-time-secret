@@ -90,7 +90,7 @@ functions:
         handler: src/lambda/http/share-secret.handler
         events:
             - http:
-                  path: share
+                  path: secrets/share
                   method: post
                   cors: true
                   authorizer: aws_iam
@@ -111,7 +111,7 @@ functions:
         handler: src/lambda/http/get-secret-meta.handler
         events:
             - http:
-                  path: private/{secretId}
+                  path: secrets/{secretId}
                   method: get
                   cors: true
                   authorizer: aws_iam
@@ -120,7 +120,7 @@ functions:
         handler: src/lambda/http/delete-secret.handler
         events:
             - http:
-                  path: private/{secretId}
+                  path: secrets/{secretId}
                   method: delete
                   cors: true
                   authorizer: aws_iam
@@ -135,7 +135,7 @@ functions:
         handler: src/lambda/http/retrieve-secret.handler
         events:
             - http:
-                  path: secret/{linkId}
+                  path: secrets/{linkId}/retrieve
                   method: post
                   cors: true
                   authorizer: aws_iam
@@ -144,7 +144,7 @@ functions:
         handler: src/lambda/http/get-history.handler
         events:
             - http:
-                  path: history
+                  path: secrets
                   method: get
                   cors: true
                   authorizer: aws_iam

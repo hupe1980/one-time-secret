@@ -19,21 +19,21 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export const Summary: React.FC = () => {
+export const SummaryPage: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
   const [summary, setSummary] = useState();
 
   useEffect(() => {
     const fetchSummary = async () => {
-      const { items } = await API.get('ApiGatewayRestApi', `/history`, {});
+      const { items } = await API.get('ApiGatewayRestApi', `/secrets`, {});
       setSummary(items);
     };
     fetchSummary();
   }, []);
 
   const handleRowClick = (secretId: string) => {
-    history.push(`/private/${secretId}`);
+    history.push(`/secrets/${secretId}`);
   };
 
   if (!summary) return <div>Loading</div>;
@@ -78,7 +78,7 @@ export const Summary: React.FC = () => {
           variant="contained"
           color="primary"
           component={Link}
-          to="/share"
+          to="/secrets/share"
         >
           Erstelle ein weiteres Geheimnis
         </Button>

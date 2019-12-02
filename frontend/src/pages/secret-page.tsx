@@ -20,9 +20,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const createSecretLink = (linkId?: string) =>
-  linkId ? `${window.location.origin}/secret/${linkId}` : '';
+  linkId ? `${window.location.origin}/secrets/${linkId}/retrieve` : '';
 
-export const Private: React.FC = () => {
+export const SecretPage: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
   const { secretId } = useParams();
@@ -32,7 +32,7 @@ export const Private: React.FC = () => {
     const fetchSecret = async () => {
       const { item } = await API.get(
         'ApiGatewayRestApi',
-        `/private/${secretId}`,
+        `/secrets/${secretId}`,
         {}
       );
       setSecret(item);
@@ -41,7 +41,7 @@ export const Private: React.FC = () => {
   }, [secretId]);
 
   const handleButtonClick = async () => {
-    await API.del('ApiGatewayRestApi', `/private/${secretId}`, {});
+    await API.del('ApiGatewayRestApi', `/secrets/${secretId}`, {});
     history.push('/');
   };
 

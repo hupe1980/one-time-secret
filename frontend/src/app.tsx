@@ -12,10 +12,10 @@ import MUILink from '@material-ui/core/Link';
 
 import { Header } from './components/header';
 
-import { Share } from './pages/share';
-import { Secret } from './pages/secret';
-import { Private } from './pages/private';
-import { Summary } from './pages/summary';
+import { SharePage } from './pages/share-page';
+import { RetrievePage } from './pages/retrieve-page';
+import { SecretPage } from './pages/secret-page';
+import { SummaryPage } from './pages/summary-page';
 
 const Brand = (
   <MUILink
@@ -36,9 +36,9 @@ export const App: React.FC = () => {
         <ThemeProvider>
           <Router>
             <Switch>
-              <Route path="/secret/:linkId">
+              <Route path="/secrets/:linkId/retrieve">
                 <Header title={Brand} />
-                <Secret />
+                <RetrievePage />
               </Route>
               <Route path="/">
                 <AuthRouter title={Brand} hide={[SignUp]} hideSignUpLink>
@@ -46,13 +46,13 @@ export const App: React.FC = () => {
                     {() => (
                       <Switch>
                         <Route exact path="/">
-                          <Summary />
+                          <SummaryPage />
                         </Route>
-                        <Route path="/share">
-                          <Share />
+                        <Route path="/secrets/share">
+                          <SharePage />
                         </Route>
-                        <Route path="/private/:secretId">
-                          <Private />
+                        <Route path="/secrets/:secretId">
+                          <SecretPage />
                         </Route>
                       </Switch>
                     )}

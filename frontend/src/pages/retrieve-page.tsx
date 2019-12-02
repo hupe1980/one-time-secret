@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const Secret: React.FC = () => {
+export const RetrievePage: React.FC = () => {
   const classes = useStyles();
   const { linkId } = useParams();
   const [secret, setSecret] = useState('');
@@ -33,7 +33,7 @@ export const Secret: React.FC = () => {
       onSubmit={async ({ passphrase }) => {
         const { item } = await API.post(
           'ApiGatewayRestApi',
-          `/secret/${linkId}`,
+          `/secrets/${linkId}/retrieve`,
           {
             passphrase
           }

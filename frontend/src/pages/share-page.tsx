@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const Share: React.FC = () => {
+export const SharePage: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
 
@@ -42,16 +42,20 @@ export const Share: React.FC = () => {
         onSubmit={async ({ secret, passphrase, ttl }) => {
           const ciphertext = encrypt(secret, passphrase);
 
-          const { newItem } = await API.post('ApiGatewayRestApi', '/share', {
-            body: {
-              ttl,
-              ciphertext
+          const { newItem } = await API.post(
+            'ApiGatewayRestApi',
+            '/secrets/share',
+            {
+              body: {
+                ttl,
+                ciphertext
+              }
             }
-          });
+          );
 
           const { secretId } = newItem;
 
-          history.push(`/private/${secretId}`);
+          history.push(`/secrets/${secretId}`);
         }}
       >
         {({ handleSubmit, isValid }) => (
