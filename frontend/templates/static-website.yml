@@ -98,7 +98,7 @@ Resources:
           - DomainName:
               Fn::GetAtt:
                 - StaticWebsiteBucket
-                - DomainName
+                - RegionalDomainName
             Id: origin1
             S3OriginConfig:
               OriginAccessIdentity:
