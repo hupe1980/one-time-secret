@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  Resources for security headers
+###############################################################################
+Parameters:
+  ###############################################################################
+
+  WebsiteDomain:
+    Type: String
+    Description: The website domain name.
+
+  Stage:
+    Type: String
+    Description: Name of the Deployment stage
+
+###############################################################################
+Resources:
+  ###############################################################################
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: !Sub "Security header for ${WebsiteDomain} [${Stage}]"
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            const response = event.Records[0].cf.response;
+            const headers = response.headers;
+
+            headers["server"] = [{
+              key: "Server", 
+              value: "Server"
+            }]; 
+            
+            headers["strict-transport-security"] = [{
+              key: "Strict-Transport-Security", 
+              value: "max-age=31536000; preload"
+            }]; 
+            
+            //headers["content-security-policy"] = [{key: "Content-Security-Policy", value: ""}]; 
+            
+            headers["x-content-type-options"] = [{
+              key: "X-Content-Type-Options", 
+              value: "nosniff"
+            }]; 
+            
+            headers["x-frame-options"] = [{
+              key: "X-Frame-Options", 
+              value: "DENY"
+            }]; 
+            
+            headers["x-xss-protection"] = [{
+              key: "X-XSS-Protection", 
+              value: "1; mode=block"
+            }]; 
+            
+            return response;
+          };
+      Handler: index.handler
+      MemorySize: 128
+      Role: !GetAtt LambdaFunctionExecutionRole.Arn
+      Runtime: nodejs8.10
+
+  LambdaFunctionVersion:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref LambdaFunction
+      Description: !Sub "Security header for ${WebsiteDomain} [${Stage}]"
+
+  LambdaFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+Outputs:
+  SecurityHeaderLambdaArnVersion:
+    Description: Arn + Version of Security Header Lambda
+    Value: !Ref LambdaFunctionVersion

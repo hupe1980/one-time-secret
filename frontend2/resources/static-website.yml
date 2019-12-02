@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  Resources for hosting a static website on
+  Amazon Simple Storage Service (S3) & CloudFront.
+###############################################################################
+Parameters:
+###############################################################################
+  Stage:
+    Type: String
+    Description: Name of the Deployment stage
+  
+  SecurityHeaderLambdaArnVersion:
+    Type: String
+    Description: ARN + version of security header lambda
+
+###############################################################################
+Resources:
+  StaticWebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "waydo-slicepay-website-${Stage}"
+      WebsiteConfiguration:
+        ErrorDocument: index.html
+        IndexDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+  
+  StaticWebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: StaticWebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt:
+                  - StaticWebsiteBucketOriginAccessIdentity
+                  - S3CanonicalUserId
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - StaticWebsiteBucket
+                      - Arn
+                  - /*
+        Version: "2012-10-17"
+  
+  StaticWebsiteBucketOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment:
+          Fn::Join:
+            - ""
+            - - "CloudFront OriginAccessIdentity for "
+              - Ref: StaticWebsiteBucket
+  
+  StaticWebSiteCFDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        CacheBehaviors: []
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 300
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCachingMinTTL: 300
+            ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html  
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            Cookies:
+              Forward: none
+            QueryString: false
+          TargetOriginId: origin1
+          ViewerProtocolPolicy: redirect-to-https
+          LambdaFunctionAssociations:
+            - 
+              EventType: origin-response
+              LambdaFunctionARN: !Ref SecurityHeaderLambdaArnVersion
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName:
+              Fn::GetAtt:
+                - StaticWebsiteBucket
+                - DomainName
+            Id: origin1
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Fn::Join:
+                  - ""
+                  - - origin-access-identity/cloudfront/
+                    - Ref: StaticWebsiteBucketOriginAccessIdentity
+        PriceClass: PriceClass_100
+
+Outputs:
+  WebsiteBucketName:
+    Description: Name of the website bucket
+    Value: !Ref StaticWebsiteBucket
+  
+  WebsiteDistribution:
+    Description: Id of website distribution
+    Value: !Ref StaticWebSiteCFDistribution
+
