@@ -25,7 +25,7 @@ provider:
               - dynamodb:UpdateItem
               - dynamodb:DeleteItem
           Resource:
-              - { GetAtt: SecretsTable.Arn }
+              - "Fn::GetAtt": [SecretsTable, Arn]
         - Effect: Allow
           Action:
               - dynamodb:Query
@@ -105,7 +105,7 @@ functions:
               Action:
                   - dynamodb:PutItem
               Resource:
-                  - { GetAtt: SecretsTable.Arn }
+                  - "Fn::GetAtt": [SecretsTable, Arn]
 
     get-secret-meta:
         handler: src/lambda/http/get-secret-meta.handler
@@ -129,7 +129,7 @@ functions:
               Action:
                   - dynamodb:DeleteItem
               Resource:
-                  - { GetAtt: SecretsTable.Arn }
+                  - "Fn::GetAtt": [SecretsTable, Arn]
 
     retrieve-secret:
         handler: src/lambda/http/retrieve-secret.handler
