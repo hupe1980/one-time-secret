@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+    commands:
+      - echo Install started on `date`
+      - npm audit --audit-level=high
+      - npm ci
+      - npm run postinstall
+  build:
+    commands:
+      - echo Validation started on `date`
+      - npm run lint
+  post_build:
+    commands:
+      - echo Validation completed on `date`

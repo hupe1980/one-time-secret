@@ -1,0 +1,113 @@
+service: serverless-one-time-secret
+
+provider:
+    name: aws
+    runtime: nodejs10.x
+    profile: ${opt:profile}
+    stage: ${opt:stage, 'dev'}
+    region: eu-central-1
+    environment:
+        SECRETS_TABLE: ${self:custom.prefix}-secrets
+        LINK_ID_INDEX: LinkIdIndex
+        USER_ID_INDEX: UserIdIndex
+        LOG_LEVEL: debug
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - dynamodb:DescribeTable
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
+          Resource:
+              - "Fn::GetAtt": [SecretsTable, Arn]
+        - Effect: Allow
+          Action:
+              - dynamodb:Query
+          Resource:
+              - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SECRETS_TABLE}/index/${self:provider.environment.LINK_ID_INDEX}
+              - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SECRETS_TABLE}/index/${self:provider.environment.USER_ID_INDEX}
+
+plugins:
+    - serverless-webpack
+    - aws-amplify-serverless-plugin
+    - serverless-dynamodb-local
+    - serverless-offline
+
+# Uncomment to enable individual packaging
+# package:
+#   individually: true
+
+custom:
+    prefix: ${self:service}-${self:provider.stage}
+    amplify:
+        - filename: ../frontend/src/aws-exports.tsx
+          type: typescript
+          appClient: WebCognitoUserPoolClient
+          s3bucket: disabled
+    serverless-offline:
+        host: 0.0.0.0
+        port: 4000
+        noAuth: true
+    dynamodb:
+        stages:
+            - dev
+        start:
+            port: 4569
+            host: localstack
+            migrate: true
+            noStart: true
+
+functions:
+    share-secret:
+        handler: src/lambda/http/share-secret.handler
+        events:
+            - http:
+                  path: share
+                  method: post
+                  cors: true
+                  authorizer: aws_iam
+
+    get-secret-meta:
+        handler: src/lambda/http/get-secret-meta.handler
+        events:
+            - http:
+                  path: private/{secretId}
+                  method: get
+                  cors: true
+                  authorizer: aws_iam
+
+    delete-secret:
+        handler: src/lambda/http/delete-secret.handler
+        events:
+            - http:
+                  path: private/{secretId}
+                  method: delete
+                  cors: true
+                  authorizer: aws_iam
+
+    retrieve-secret:
+        handler: src/lambda/http/retrieve-secret.handler
+        events:
+            - http:
+                  path: secret/{linkId}
+                  method: post
+                  cors: true
+                  authorizer: aws_iam
+
+    get-history:
+        handler: src/lambda/http/get-history.handler
+        events:
+            - http:
+                  path: history
+                  method: get
+                  cors: true
+                  authorizer: aws_iam
+
+resources:
+    - ${file(resources/api-gateway-errors.yml)}
+    - ${file(resources/dynamodb-table.yml)}
+    - ${file(resources/cognito-user-pool.yml)}
+    - ${file(resources/cognito-identity-pool.yml)}

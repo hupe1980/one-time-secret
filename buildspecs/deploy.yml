@@ -1,0 +1,34 @@
+version: 0.2
+
+env:
+  variables:
+    STATIC_WEBSITE_STACKNAME: "one-time-secret-website"
+    SECURITY_HEADERS_STACKNAME: "one-time-secret-headers"
+    WEBSITE_DOAMIN: "onetimesecret@cloudcomponents.org"
+    STAGE: "dev"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+    commands:
+      - echo Install started on `date`
+      - npm ci
+      - npm run postinstall
+  build:
+    commands:
+      - echo Deploy started on `date`
+      - npm run deploy:backend
+      - echo aws --region us-east-1 cloudformation deploy --no-fail-on-empty-changeset --stack-name ${SECURITY_HEADERS_STACKNAME} --template-file frontend/templates/security-header.yml --parameter-overrides WebsiteDomain=${WEBSITE_DOMAIN} Stage=${STAGE} --capabilities CAPABILITY_NAMED_IAM
+      - aws --region us-east-1 cloudformation deploy --no-fail-on-empty-changeset --stack-name ${SECURITY_HEADERS_STACKNAME} --template-file frontend/templates/security-header.yml --parameter-overrides  WebsiteDomain=${WEBSITE_DOMAIN} Stage=${STAGE} --capabilities CAPABILITY_NAMED_IAM
+      - SECURITY_HEADER_LAMBDA_ARN_VERSION=$(aws --region us-east-1 cloudformation describe-stacks --stack-name ${SECURITY_HEADERS_STACKNAME} --query "Stacks[0].Outputs[?OutputKey=='SecurityHeaderLambdaArnVersion'].OutputValue" --output text)
+      - echo aws cloudformation deploy --no-fail-on-empty-changeset --stack-name ${STATIC_WEBSITE_STACKNAME} --template-file frontend/templates/static-website.yml --parameter-overrides Stage=${STAGE} SecurityHeaderLambdaArnVersion=${SECURITY_HEADER_LAMBDA_ARN_VERSION}
+      - aws cloudformation deploy --no-fail-on-empty-changeset --stack-name ${STATIC_WEBSITE_STACKNAME} --template-file frontend/templates/static-website.yml --parameter-overrides Stage=${STAGE} SecurityHeaderLambdaArnVersion=${SECURITY_HEADER_LAMBDA_ARN_VERSION}
+      - WEBSITE_BUCKET=$(aws cloudformation describe-stacks --stack-name ${STATIC_WEBSITE_STACKNAME} --query "Stacks[0].Outputs[?OutputKey=='WebsiteBucketName'].OutputValue" --output text)
+      - WEBSITE_DISTRIBUTION=$(aws cloudformation describe-stacks --stack-name ${STATIC_WEBSITE_STACKNAME} --query "Stacks[0].Outputs[?OutputKey=='WebsiteDistribution'].OutputValue" --output text)
+      - npm run build:frontend
+  post_build:
+    commands:
+      - aws s3 sync frontend/build/ s3://${WEBSITE_BUCKET} --delete
+      - aws cloudfront create-invalidation --distribution-id ${WEBSITE_DISTRIBUTION} --paths /index.html
+      - echo Deploy completed on `date`

@@ -1,0 +1,17 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "postinstall": "lerna bootstrap",
+    "lint": "lerna run lint",
+    "lint:fix": "lerna run lint -- --fix",
+    "all:outdated": "npm outdated; lerna exec --no-bail -- npm outdated",
+    "all:upgrade": "npm upgrade; lerna exec --no-bail -- npm upgrade",
+    "deploy:backend": "lerna exec --scope backend -- npm run deploy",
+    "build:frontend": "lerna exec --scope frontend -- npm run build"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.23",
+    "lerna": "^3.19.0"
+  }
+}
