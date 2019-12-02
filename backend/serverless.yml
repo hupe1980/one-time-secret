@@ -1,4 +1,4 @@
-service: serverless-one-time-secret
+service: one-time-secret
 
 provider:
     name: aws
@@ -6,6 +6,10 @@ provider:
     profile: ${opt:profile}
     stage: ${opt:stage, 'dev'}
     region: eu-central-1
+    stackName: ${self:service}-backend
+    logRetentionInDays: 1
+    stackTags:
+        ENVIRONMENT: ${self:service}
     environment:
         SECRETS_TABLE: ${self:custom.prefix}-secrets
         LINK_ID_INDEX: LinkIdIndex
@@ -36,9 +40,8 @@ plugins:
     - serverless-dynamodb-local
     - serverless-offline
 
-# Uncomment to enable individual packaging
-# package:
-#   individually: true
+package:
+    individually: true
 
 custom:
     prefix: ${self:service}-${self:provider.stage}
