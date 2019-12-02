@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const createSecretLink = (linkId?: string) =>
-  linkId ? `${window.location.origin}/secrets/${linkId}/retrieve` : '';
+  linkId ? `${window.location.origin}/retrieve/${linkId}` : '';
 
 export const SecretPage: React.FC = () => {
   const classes = useStyles();

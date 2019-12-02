@@ -33,7 +33,7 @@ export const RetrievePage: React.FC = () => {
       onSubmit={async ({ passphrase }) => {
         const { item } = await API.post(
           'ApiGatewayRestApi',
-          `/secrets/${linkId}/retrieve`,
+          `/retrieve/${linkId}`,
           {
             passphrase
           }

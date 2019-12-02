@@ -135,7 +135,7 @@ functions:
         handler: src/lambda/http/retrieve-secret.handler
         events:
             - http:
-                  path: secrets/{linkId}/retrieve
+                  path: retrieve/{linkId}
                   method: post
                   cors: true
                   authorizer: aws_iam

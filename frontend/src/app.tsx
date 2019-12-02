@@ -36,7 +36,7 @@ export const App: React.FC = () => {
         <ThemeProvider>
           <Router>
             <Switch>
-              <Route path="/secrets/:linkId/retrieve">
+              <Route path="/retrieve/:linkId">
                 <Header title={Brand} />
                 <RetrievePage />
               </Route>
