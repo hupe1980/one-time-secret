@@ -4,10 +4,14 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik, Field, Form } from 'formik';
-import { PasswordField } from 'amplify-material-ui';
 import { API } from 'aws-amplify';
 
-import { Section, SectionHeader, SectionBody } from '../components';
+import {
+  Section,
+  SectionHeader,
+  SectionBody,
+  PasswordField
+} from '../components';
 
 const useStyles = makeStyles(theme => ({
   form: {

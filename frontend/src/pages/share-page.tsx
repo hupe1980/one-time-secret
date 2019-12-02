@@ -11,10 +11,14 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import { Formik, Field, Form } from 'formik';
 import { TextField, Select } from 'formik-material-ui';
-import { PasswordField } from 'amplify-material-ui';
 import { API } from 'aws-amplify';
 
-import { Section, SectionHeader, SectionBody } from '../components';
+import {
+  Section,
+  SectionHeader,
+  SectionBody,
+  PasswordField
+} from '../components';
 import { encrypt } from '../utils/crypto';
 
 const useStyles = makeStyles(theme => ({
