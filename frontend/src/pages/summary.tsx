@@ -9,7 +9,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import { API } from 'aws-amplify';
 
-import { Section, SectionHeader, SectionBody } from '../components';
+import { Section, SectionHeader, SectionBody, TimeToLive } from '../components';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export const History: React.FC = () => {
+export const Summary: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
   const [summary, setSummary] = useState();
@@ -50,8 +50,7 @@ export const History: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell align="right">Erstellt</TableCell>
-              <TableCell align="right">Ablauf</TableCell>
+              <TableCell align="right">Lebenszeit</TableCell>
               <TableCell align="right">Status</TableCell>
             </TableRow>
           </TableHead>
@@ -65,8 +64,9 @@ export const History: React.FC = () => {
                 <TableCell component="th" scope="row">
                   {row.secretId}
                 </TableCell>
-                <TableCell align="right">{row.creationTime}</TableCell>
-                <TableCell align="right">{row.expirationTime}</TableCell>
+                <TableCell align="right">
+                  <TimeToLive expirationTime={row.expirationTime} />
+                </TableCell>
                 <TableCell align="right">TODO</TableCell>
               </TableRow>
             ))}

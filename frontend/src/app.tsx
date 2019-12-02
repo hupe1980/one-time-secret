@@ -15,7 +15,7 @@ import { Header } from './components/header';
 import { Share } from './pages/share';
 import { Secret } from './pages/secret';
 import { Private } from './pages/private';
-import { History } from './pages/history';
+import { Summary } from './pages/summary';
 
 const Brand = (
   <MUILink
@@ -46,7 +46,7 @@ export const App: React.FC = () => {
                     {() => (
                       <Switch>
                         <Route exact path="/">
-                          <History />
+                          <Summary />
                         </Route>
                         <Route path="/share">
                           <Share />

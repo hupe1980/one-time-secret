@@ -34,7 +34,9 @@ export const Secret: React.FC = () => {
         const { item } = await API.post(
           'ApiGatewayRestApi',
           `/secret/${linkId}`,
-          {}
+          {
+            passphrase
+          }
         );
         setSecret(decrypt(item.ciphertext, passphrase));
       }}
