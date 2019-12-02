@@ -10,6 +10,8 @@ import {
 } from 'amplify-material-ui';
 import MUILink from '@material-ui/core/Link';
 
+import { Header } from './components/header';
+
 import { Share } from './pages/share';
 import { Secret } from './pages/secret';
 import { Private } from './pages/private';
@@ -35,6 +37,7 @@ export const App: React.FC = () => {
           <Router>
             <Switch>
               <Route path="/secret/:linkId">
+                <Header title={Brand} />
                 <Secret />
               </Route>
               <Route path="/">
