@@ -4,11 +4,11 @@ Description: >
   Amazon Simple Storage Service (S3) & CloudFront.
 ###############################################################################
 Parameters:
-###############################################################################
+  ###############################################################################
   Stage:
     Type: String
     Description: Name of the Deployment stage
-  
+
   SecurityHeaderLambdaArnVersion:
     Type: String
     Description: ARN + version of security header lambda
@@ -18,7 +18,7 @@ Resources:
   StaticWebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "waydo-slicepay-website-${Stage}"
+      BucketName: !Sub "one-time-secret-${Stage}"
       WebsiteConfiguration:
         ErrorDocument: index.html
         IndexDocument: index.html
@@ -27,7 +27,7 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-  
+
   StaticWebsiteBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -50,7 +50,7 @@ Resources:
                       - Arn
                   - /*
         Version: "2012-10-17"
-  
+
   StaticWebsiteBucketOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
@@ -60,7 +60,7 @@ Resources:
             - ""
             - - "CloudFront OriginAccessIdentity for "
               - Ref: StaticWebsiteBucket
-  
+
   StaticWebSiteCFDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -74,7 +74,7 @@ Resources:
           - ErrorCachingMinTTL: 300
             ErrorCode: 404
             ResponseCode: 200
-            ResponsePagePath: /index.html  
+            ResponsePagePath: /index.html
         DefaultCacheBehavior:
           AllowedMethods:
             - GET
@@ -89,8 +89,7 @@ Resources:
           TargetOriginId: origin1
           ViewerProtocolPolicy: redirect-to-https
           LambdaFunctionAssociations:
-            - 
-              EventType: origin-response
+            - EventType: origin-response
               LambdaFunctionARN: !Ref SecurityHeaderLambdaArnVersion
         DefaultRootObject: index.html
         Enabled: true
@@ -114,8 +113,7 @@ Outputs:
   WebsiteBucketName:
     Description: Name of the website bucket
     Value: !Ref StaticWebsiteBucket
-  
+
   WebsiteDistribution:
     Description: Id of website distribution
     Value: !Ref StaticWebSiteCFDistribution
-
