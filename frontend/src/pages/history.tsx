@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -21,25 +21,30 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const History: React.FC = () => {
   const classes = useStyles();
-  const [history, setHistory] = useState();
+  const history = useHistory();
+  const [summary, setSummary] = useState();
 
   useEffect(() => {
-    const fetchHistory = async () => {
+    const fetchSummary = async () => {
       const { items } = await API.get('ApiGatewayRestApi', `/history`, {});
-      setHistory(items);
+      setSummary(items);
     };
-    fetchHistory();
+    fetchSummary();
   }, []);
 
-  if (!history) return <div>Loading</div>;
+  const handleRowClick = (secretId: string) => {
+    history.push(`/private/${secretId}`);
+  };
+
+  if (!summary) return <div>Loading</div>;
 
   return (
     <Section>
-      <SectionHeader>Historie</SectionHeader>
+      <SectionHeader>Übersicht</SectionHeader>
       <SectionBody>
         <Table
           stickyHeader
-          aria-label="history table"
+          aria-label="summary table"
           className={classes.table}
         >
           <TableHead>
@@ -51,8 +56,12 @@ export const History: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {history.map((row: any) => (
-              <TableRow hover key={row.secretId}>
+            {summary.map((row: any) => (
+              <TableRow
+                hover
+                key={row.secretId}
+                onClick={() => handleRowClick(row.secretId)}
+              >
                 <TableCell component="th" scope="row">
                   {row.secretId}
                 </TableCell>
