@@ -22,11 +22,10 @@ provider:
               - dynamodb:Query
               - dynamodb:Scan
               - dynamodb:GetItem
-              - dynamodb:PutItem
               - dynamodb:UpdateItem
               - dynamodb:DeleteItem
           Resource:
-              - "Fn::GetAtt": [SecretsTable, Arn]
+              - { GetAtt: SecretsTable.Arn }
         - Effect: Allow
           Action:
               - dynamodb:Query
@@ -36,6 +35,9 @@ provider:
 
 plugins:
     - serverless-webpack
+    - serverless-reqvalidator-plugin
+    - serverless-aws-documentation
+    - serverless-iam-roles-per-function
     - aws-amplify-serverless-plugin
     - serverless-dynamodb-local
     - serverless-offline
@@ -45,17 +47,35 @@ plugins:
 
 custom:
     prefix: ${self:service}-${self:provider.stage}
+
+    serverless-iam-roles-per-function:
+        defaultInherit: true
+
+    documentation:
+        api:
+            info:
+                version: v1.0.0
+                title: one-time-secret
+                description: Serverless one-time-secret application
+        models:
+            - name: ShareSecret
+              contentType: application/json
+              schema: ${file(models/share-secret-request.json)}
+
     webpack:
         includeModules: true # enable auto-packing of external modules
+
     amplify:
         - filename: ../frontend/src/aws-exports.tsx
           type: typescript
           appClient: WebCognitoUserPoolClient
           s3bucket: disabled
+
     serverless-offline:
         host: 0.0.0.0
         port: 4000
         noAuth: true
+
     dynamodb:
         stages:
             - dev
@@ -74,6 +94,18 @@ functions:
                   method: post
                   cors: true
                   authorizer: aws_iam
+                  reqValidatorName: RequestBodyValidator
+                  documentation:
+                      summary: Share a secret
+                      description: Share a secret
+                      requestModels:
+                          "application/json": ShareSecret
+        iamRoleStatements:
+            - Effect: Allow
+              Action:
+                  - dynamodb:PutItem
+              Resource:
+                  - { GetAtt: SecretsTable.Arn }
 
     get-secret-meta:
         handler: src/lambda/http/get-secret-meta.handler
@@ -92,6 +124,12 @@ functions:
                   method: delete
                   cors: true
                   authorizer: aws_iam
+        iamRoleStatements:
+            - Effect: Allow
+              Action:
+                  - dynamodb:DeleteItem
+              Resource:
+                  - { GetAtt: SecretsTable.Arn }
 
     retrieve-secret:
         handler: src/lambda/http/retrieve-secret.handler
@@ -112,6 +150,7 @@ functions:
                   authorizer: aws_iam
 
 resources:
+    - ${file(resources/request-body-validator.yml)}
     - ${file(resources/api-gateway-errors.yml)}
     - ${file(resources/dynamodb-table.yml)}
     - ${file(resources/cognito-user-pool.yml)}
