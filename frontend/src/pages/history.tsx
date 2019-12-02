@@ -19,35 +19,19 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function createData(
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number
-) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9)
-];
-
 export const History: React.FC = () => {
   const classes = useStyles();
   const [history, setHistory] = useState();
 
   useEffect(() => {
     const fetchHistory = async () => {
-      const items = await API.get('ApiGatewayRestApi', `/history`, {});
-      console.log(items);
+      const { items } = await API.get('ApiGatewayRestApi', `/history`, {});
+      setHistory(items);
     };
     fetchHistory();
   }, []);
+
+  if (!history) return <div>Loading</div>;
 
   return (
     <Section>
@@ -67,14 +51,14 @@ export const History: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map(row => (
-              <TableRow hover key={row.name}>
+            {history.map((row: any) => (
+              <TableRow hover key={row.secretId}>
                 <TableCell component="th" scope="row">
-                  {row.name}
+                  {row.secretId}
                 </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">{row.fat}</TableCell>
-                <TableCell align="right">{row.protein}</TableCell>
+                <TableCell align="right">{row.creationTime}</TableCell>
+                <TableCell align="right">{row.expirationTime}</TableCell>
+                <TableCell align="right">TODO</TableCell>
               </TableRow>
             ))}
           </TableBody>
